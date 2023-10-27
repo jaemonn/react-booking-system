@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import moment from 'moment'
 
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from 'date-fns';
+
+// - Locale timezone
+var momentTZ = require('moment-timezone'); // still unclear to me
+var userTimeZone = "Europe/London";
 
 function BookingPage() {
     const [reserveDate, setReserveDate] = useState('');
@@ -35,8 +40,35 @@ function BookingPage() {
         },
     })
 
+    // store available booking times in an array
+    const bookingTimes = () => {
+        let b_times = [];   
+        for (let t = 11; t <= 22; t++) {
+            b_times.push(t + ':00');
+            b_times.push(t + ':30');
+        }
+
+        return b_times;
+    }
+
+    const [includeTimes, setIncludeTimes] = useState(bookingTimes)
     const onChangeDate = (date) => {
-        console.log(date);
+        var disableBookingTime = momentTZ().tz(userTimeZone).format('18:00:00');
+        var currentTime = momentTZ().tz(userTimeZone).format('HH:mm:ss');
+        var currentDay = momentTZ().tz(userTimeZone).format('DD-MM-YYYY');
+        var selectedDay = moment(new Date(date)).format('DD-MM-YYYY');
+        var selectedHour = moment(new Date(date)).format('HH:mm');
+
+        console.log(selectedDay);
+        console.log(selectedHour);
+
+        if (currentDay === selectedDay && currentTime >= disableBookingTime) {
+            setIncludeTimes([]);
+            setReserveDate('');
+        } else {
+            setReserveDate(date);
+            setIncludeTimes(bookingTimes);
+        }
     }
 
     return (
@@ -65,7 +97,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.first_name && formik.errors.first_name ? <div className="text-red-500 text-sm">{formik.errors.first_name}</div> : null }
+                                    {formik.touched.first_name && formik.errors.first_name ? <div className="text-red-500 text-sm">{formik.errors.first_name}</div> : null}
 
                                 </div>
 
@@ -86,7 +118,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.last_name && formik.errors.last_name ? <div className="text-red-500 text-sm">{formik.errors.last_name}</div> : null }
+                                    {formik.touched.last_name && formik.errors.last_name ? <div className="text-red-500 text-sm">{formik.errors.last_name}</div> : null}
                                 </div>
 
                                 <div className="sm:col-span-3">
@@ -105,7 +137,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.email && formik.errors.email ? <div className="text-red-500 text-sm">{formik.errors.email}</div> : null }
+                                    {formik.touched.email && formik.errors.email ? <div className="text-red-500 text-sm">{formik.errors.email}</div> : null}
                                 </div>
 
                                 <div className="sm:col-span-3">
@@ -124,7 +156,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.phone_number && formik.errors.phone_number ? <div className="text-red-500 text-sm">{formik.errors.phone_number}</div> : null }
+                                    {formik.touched.phone_number && formik.errors.phone_number ? <div className="text-red-500 text-sm">{formik.errors.phone_number}</div> : null}
                                 </div>
 
                                 <div className="sm:col-span-3">
@@ -143,7 +175,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.no_of_tables && formik.errors.no_of_tables ? <div className="text-red-500 text-sm">{formik.errors.no_of_tables}</div> : null }
+                                    {formik.touched.no_of_tables && formik.errors.no_of_tables ? <div className="text-red-500 text-sm">{formik.errors.no_of_tables}</div> : null}
                                 </div>
 
                                 <div className="sm:col-span-3">
@@ -162,7 +194,7 @@ function BookingPage() {
                                             className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
-                                    {formik.touched.no_of_people && formik.errors.no_of_people ? <div className="text-red-500 text-sm">{formik.errors.no_of_people}</div> : null }
+                                    {formik.touched.no_of_people && formik.errors.no_of_people ? <div className="text-red-500 text-sm">{formik.errors.no_of_people}</div> : null}
                                 </div>
 
                                 <div className="grid place-items-center sm:col-span-6">
@@ -173,9 +205,11 @@ function BookingPage() {
                                         <DatePicker
                                             id="reserve_date"
                                             name="reserve_date"
-                                            className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
+                                            className="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             showIcon
                                             showTimeSelect
+                                            placeholderText="Select booking date and time"
+                                            dateFormat="dd-MM-y hh:mm:a"
                                             minDate={new Date()}
                                             minTime={minTimeOfReservation}
                                             maxTime={maxTimeOfReservation}
